@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:  ### metadata del deploment
+  name: deployment-test
+  annotations:
+    kubernetes.io/change-cause: "set a container port 150"
+  labels:
+    app: front
+spec:   ### inicia info del replicaSet
+  replicas: 5
+  selector:
+    matchLabels:
+      app: front
+  template:
+    metadata:
+      labels:
+        app: front
+    spec: ### inicia info del contenedor
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+          - containerPort: 150
