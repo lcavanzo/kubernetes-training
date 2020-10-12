@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: nginx-config
+  labels:
+    app: front
+data:
+  test: hola
+  nginx: |
+    server {
+        listen          9090;
+        sever_name      localhost;
+
+        location / {
+          root  /usr/share/nginx/html;
+          index index.html ;
+        }
+
+        error_page 500 502 50 504 /50x.html;
+        location = /50x.html {
+            root /usr/share/nginx/html;
+        }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:  ### metadata del deploment
+  name: deployment-test
+  labels:
+    app: front
+spec:   ### inicia info del replicaSet
+  replicas: 1
+  selector:
+    matchLabels:
+      app: front
+  template:
+    metadata:
+      labels:
+        app: front
+    spec: ### inicia info del contenedor
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          volumeMounts:
+          - name: nginx-vol # se crea el volumen
+            mountPath: /etc/nginx/conf.d # la ruta donde se montara el volume
+      volumes:
+        - name: nginx-vol # se hace referencia al volumen que se creo antes
+          configMap:
+            name: nginx-config # aqui se hace referencia al configMap que se creo en la partes superioir de;; archivo
+            items: 
+            - key: nginx
+              path: default.conf  # el nombre que tendra el archivo
+         
